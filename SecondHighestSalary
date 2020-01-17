@@ -1,0 +1,5 @@
+with h1 as
+(select distinct top 1  salary from employee order by salary desc),
+h2 as
+(select distinct top 2 salary from employee order by salary desc)
+select (select h2.salary from h2 left join h1 on h2.salary=h1.salary where h1.salary is null) as SecondHighestSalary
