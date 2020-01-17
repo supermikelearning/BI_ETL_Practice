@@ -1,0 +1,14 @@
+with cte_source as
+(select delivery_id ,customer_id,order_date,customer_pref_delivery_date ,row_number() over (partition by customer_id order by order_date) as rn from delivery),
+cte_firstorder as
+(select * from cte_source where rn=1),
+cte_firstorder_i as
+(select * from cte_source where rn=1 and order_date=customer_pref_delivery_date ),
+cte_count_firstorder as
+(select count(*) as countoffirstorder,customer_id from cte_firstorder group by customer_id),
+cte_count_firstorder_i as
+(select count(*) as countoffirstorder_i,customer_id from cte_firstorder_i group by customer_id)
+
+
+select cast(cast(sum(isnull(ci.countoffirstorder_i,0)) as float) /cast(sum(c.countoffirstorder) as float)*100  as decimal(10,2)) as  immediate_percentage from cte_count_firstorder c
+left join cte_count_firstorder_i ci on c.customer_id=ci.customer_id
