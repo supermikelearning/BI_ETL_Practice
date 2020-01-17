@@ -1,0 +1,23 @@
+with num_c as
+(
+select request_at,count(*) as numofcancellation from trips t
+join users u1 on t.driver_id=u1.users_id and u1.banned='no' 
+join users u2 on t.client_id=u2.users_id and u2.banned='no'
+where request_at between '2013-10-01'and '2013-10-03'and status like 'cancelled%'
+group by request_at),
+
+num_t as
+(
+select request_at,count(*) numoftotalrequests
+from trips t
+join users u1 on t.driver_id=u1.users_id and u1.banned='no' 
+join users u2 on t.client_id=u2.users_id and u2.banned='no' 
+where request_at between '2013-10-01' and '2013-10-03'
+group by request_at
+)
+
+ 
+
+select t.request_at as Day,cast(isnull(cast(numofcancellation as float)/cast(numoftotalrequests as float),0) as decimal(10,2)) as [Cancellation Rate]
+from num_t t 
+left join num_c c on t.request_at=c.request_at
