@@ -1,0 +1,6 @@
+select id,month,sum(salary) over (partition by id order by month) as salary
+from
+(select e.id,Month,Salary from employee e
+left join (select id,max(month) over (partition by id order by month desc) as recentmonth from employee) rm on e.id=rm.id and e.month=rm.recentmonth
+ where rm.recentmonth is null)s
+order by id,month desc
