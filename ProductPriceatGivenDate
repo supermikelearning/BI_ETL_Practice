@@ -1,0 +1,13 @@
+with cte as
+(select *,row_number() over(partition by product_id order by change_date) as rn from products),
+cte1 as
+(select product_id,max(rn) as lastrn from cte where change_date<='2019-08-16' group by product_id),
+lastprice as
+(select cte.product_id,cte.new_price,rn from cte join cte1 on cte1.product_id=cte.product_id and cte1.lastrn=cte.rn),
+productlist as
+(select distinct product_id from products)
+
+
+select p.product_id,isnull(new_price,10) as price
+from productlist p
+left join lastprice l on l.product_id=p.product_id
